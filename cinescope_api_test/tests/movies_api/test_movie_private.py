@@ -1,7 +1,9 @@
-from movies_api.api.data_generator import DataGenerator
+from cinescope_api_test.utils.data_generator import DataGenerator
+from cinescope_api_test.clients.api_manager import ApiManager
+
 
 class TestPostMoviesApi:
-    def test_post_movies_positive(self, authenticated_api):
+    def test_post_movies_positive(self, authenticated_api: ApiManager):
         """
         Тест на создание фильмов
         """
@@ -26,7 +28,7 @@ class TestPostMoviesApi:
 
         # здесь пока не удаляем фильмы, чтобы чекать базу, что из всех тестов создался только один фильм
 
-    def test_post_movies_duplicate_name(self, authenticated_api):
+    def test_post_movies_duplicate_name(self, authenticated_api: ApiManager):
         """
         Негативный тест: создание фильма с уже существующим названием
         """
@@ -66,8 +68,8 @@ class TestPostMoviesApi:
         Негативный тест на создание фильмов (без авторизации)
         """
         import requests
-        from movies_api.api.movie_api import MovieAPI
-        from movies_api.api.data_generator import DataGenerator
+        from cinescope_api_test.clients.movie_api import MovieAPI
+        from cinescope_api_test.utils.data_generator import DataGenerator
 
         # 1. Создаем новую сессию без авторизации
         unauth_session = requests.Session()
@@ -91,7 +93,7 @@ class TestPostMoviesApi:
             print(f'✅ Получена ожидаемая ошибка 401: {e}')
 
 
-    def test_get_movies_positive(self, authenticated_api, movie_api):
+    def test_get_movies_positive(self, authenticated_api: ApiManager):
         """
         Тест на получение созданного фильма
         """
@@ -111,7 +113,7 @@ class TestPostMoviesApi:
 
         # 2. получаем фильм
         print(f'\n🔍 Получаем фильм по ID: {created_movie_id}')
-        get_response = movie_api.get_movie_by_id(
+        get_response = authenticated_api.movie_api.get_movie_by_id(
             movie_id=created_movie_id,
             expected_status=200
         )
@@ -129,7 +131,7 @@ class TestPostMoviesApi:
         print(f'\n🔍 Пытаемся получить фильм с несуществующим ID: {non_existent_id}')
 
         try:
-            non_existent_response = movie_api.get_movie_by_id(
+            non_existent_response = authenticated_api.movie_api.get_movie_by_id(
                 movie_id=non_existent_id,
                 expected_status=404
             )
@@ -143,7 +145,7 @@ class TestPostMoviesApi:
 
         # 5. пробуем получить после удаления
         try:
-            not_found_response = movie_api.get_movie_by_id(
+            not_found_response = authenticated_api.movie_api.get_movie_by_id(
                 movie_id=created_movie_id,
                 expected_status=404
             )
@@ -152,7 +154,7 @@ class TestPostMoviesApi:
             print(f'⚠️ Ожидаемая ошибка 404 при получении удаленного фильма: {e}')
 
 
-    def test_patch_movies(self, authenticated_api, movie_api):
+    def test_patch_movies(self, authenticated_api: ApiManager):
         """
         Тест на редактирование созданного фильма
         """
@@ -202,7 +204,7 @@ class TestPostMoviesApi:
 
         # 4. Получаем фильм снова и проверяем, что изменения применились
         print(f'\n🔍 Проверяем изменения, получая фильм снова')
-        get_updated_response = movie_api.get_movie_by_id(
+        get_updated_response = authenticated_api.movie_api.get_movie_by_id(
             movie_id=created_movie_id,
             expected_status=200
         )
@@ -216,7 +218,7 @@ class TestPostMoviesApi:
         authenticated_api.delete_movie(created_movie_id)
 
 
-    def test_patch_movies_nonexistent_id(self, authenticated_api):
+    def test_patch_movies_nonexistent_id(self, authenticated_api: ApiManager):
         """
         Негативный тест: попытка отредактировать несуществующий фильм
         """
@@ -235,7 +237,7 @@ class TestPostMoviesApi:
             assert '404' in str(e)
 
 
-    def test_patch_movies_invalid_data(self, authenticated_api, movie_api):
+    def test_patch_movies_invalid_data(self, authenticated_api: ApiManager):
         """
         Негативный тест: обновление с некорректными данными
         """

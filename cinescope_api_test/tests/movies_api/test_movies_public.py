@@ -1,5 +1,7 @@
+from cinescope_api_test.clients.api_manager import ApiManager
+
 class TestGetMoviesApi:
-    def test_get_movies_positive(self, api_manager):
+    def test_get_movies_positive(self, api_manager: ApiManager):
         """
         Тест на получение фильмов
         """
@@ -31,7 +33,7 @@ class TestGetMoviesApi:
             print(f'{i}. {movie["name"]} - {movie["price"]} руб.')
 
 
-    def test_get_movies_invalid_page_size(self, api_manager):
+    def test_get_movies_invalid_page_size(self, api_manager: ApiManager):
         """
         Невалидный pageSize
         """
@@ -50,7 +52,7 @@ class TestGetMoviesApi:
         print(f'Получена ожидаемая ошибка: {response}')
 
 
-    def test_get_movies_page_out_of_range(self, api_manager):
+    def test_get_movies_page_out_of_range(self, api_manager: ApiManager):
         """
         Номер страницы превышает общее количество страниц
         """
