@@ -1,5 +1,5 @@
-from .custom_requester import CustomRequester
-from . import constants
+from movies_api.custom_requester import CustomRequester
+from movies_api import constants
 import urllib.parse
 
 class MovieAPI(CustomRequester):
