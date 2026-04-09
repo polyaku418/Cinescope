@@ -1,11 +1,10 @@
 from cinescope_api_test.utils.data_generator import DataGenerator
 from cinescope_api_test.clients.api_manager import ApiManager
 
-
 class TestPostMoviesApi:
     def test_post_movies_positive(self, authenticated_api: ApiManager):
         """
-        Тест на создание фильмов
+        Тест на создание фильмов (здесь не удаляем фильм, чекаем базу!)
         """
         movie_data = DataGenerator.generate_movie_data()
 
@@ -27,6 +26,29 @@ class TestPostMoviesApi:
         print(f'✅ Создан фильм с ID: {created_movie_id}, название: {movie_data["name"]}')
 
         # здесь пока не удаляем фильмы, чтобы чекать базу, что из всех тестов создался только один фильм
+
+    def test_post_movies_negative_common_user(self, common_user, super_admin):
+        """
+        Негативный тест: USER не может создавать фильмы
+        """
+        movie_data = DataGenerator.generate_movie_data()
+        user_id = common_user.id if hasattr(common_user, 'id') else None
+
+        try:
+            response = common_user.api.movie_api.post_movies(
+                data=movie_data,
+                expected_status=403  # Forbidden - доступ запрещен
+            )
+            print(f'✅ USER не может создавать фильмы (403 Forbidden)')
+        except Exception as e:
+            assert '403' in str(e) or '401' in str(e), f"Ожидалась ошибка 403/401, получена: {e}"
+            print(f'✅ Доступ запрещен для USER: {e}')
+            
+        finally:
+            # Очистка пользователя
+            if user_id:
+                super_admin.api.user_api.delete_user(user_id)
+                print(f'🗑️ Пользователь {user_id} удален')
 
     def test_post_movies_duplicate_name(self, authenticated_api: ApiManager):
         """
@@ -267,4 +289,28 @@ class TestPostMoviesApi:
         authenticated_api.delete_movie(movie_id)
 
 
+    def test_patch_movies_negative_common_user(self, common_user, authenticated_api, super_admin):
+        movie_id = None
+        user_id = common_user.id if hasattr(common_user, 'id') else None
 
+        try:
+            movie = authenticated_api.movie_api.post_movies(
+                data=DataGenerator.generate_movie_data(),
+                expected_status=201
+            )
+            movie_id = movie['id']
+
+            response = common_user.api.movie_api.patch_movie(
+                movie_id=movie_id,
+                data={'name': 'Hacked Name'},
+                expected_status=403
+            )
+            assert response.status_code == 403
+            print('✅ USER не может редактировать фильмы')
+
+        finally:
+            if movie_id:
+                authenticated_api.delete_movie(movie_id)
+            if user_id:
+                super_admin.api.user_api.delete_user(user_id)
+                print(f'🗑️ Пользователь {user_id} удален')

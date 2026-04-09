@@ -1,5 +1,5 @@
-from movies_api.custom_requester import CustomRequester
-from movies_api import constants
+from cinescope_api_test.custom_requester.custom_requester import CustomRequester
+from cinescope_api_test import constants
 import urllib.parse
 
 class MovieAPI(CustomRequester):
@@ -72,7 +72,7 @@ class MovieAPI(CustomRequester):
             expected_status=expected_status
         )
 
-        if response.status_code == expected_status:
+        if 200 <= response.status_code < 300:
             return response.json()
         return response
 
