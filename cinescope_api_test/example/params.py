@@ -66,9 +66,9 @@ class TestFeatures:
 from cinescope_api_test.constants import SUPER_ADMIN
 
 @pytest.mark.parametrize("email, password, expected_status", [
-    (SUPER_ADMIN['email'], SUPER_ADMIN['password'], 200),  # Исправлено
-    ("test_login1@email.com", "asdqwe123Q!", 401),
-    ("", "password", 401),
+    (SUPER_ADMIN['email'], SUPER_ADMIN['password'], 200),
+    ("test_login1@email.com", "asdqwe123Q!", 401),  # 401 вместо 500
+    ("", "password", 401),  # 401 вместо 500
 ], ids=["Admin login", "Invalid user", "Empty username"])
 def test_login(email, password, expected_status, api_manager):
     login_data = {
@@ -76,4 +76,3 @@ def test_login(email, password, expected_status, api_manager):
         "password": password
     }
     api_manager.auth_api.login_user(login_data=login_data, expected_status=expected_status)
-

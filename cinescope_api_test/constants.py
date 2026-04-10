@@ -1,3 +1,9 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 BASE_URL = 'https://auth.dev-cinescope.coconutqa.ru/'
 LOGIN_URL = 'https://auth.dev-cinescope.coconutqa.ru/'
 
@@ -13,6 +19,6 @@ HEADERS = {
 }
 
 SUPER_ADMIN = {
-    'email': 'api1@gmail.com',
-    'password': 'asdqwe123Q'
+    'email': os.getenv('SUPER_ADMIN_EMAIL'),
+    'password': os.getenv('SUPER_ADMIN_PASSWORD')
 }
